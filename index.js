@@ -1,24 +1,24 @@
 import express from "express"
 import { mongoose } from "mongoose"
 import { router } from "./routes/user.routes.js";
+import config from "./config.js"
 
-const PORT = process.env.PORT;
-const DB_PASSWORD = process.env.DB_PASSWORD;
+
 
 const userRouter = router;
 
 const app = express();
 
 // routes
-app.use("/user", userRouter);
+app.use("/", userRouter);
 
 
 
-mongoose.connect(`mongodb+srv://ajibewadannyboi:${DB_PASSWORD}@danielcluster.fd5sg.mongodb.net/ip_servicedb?retryWrites=true&w=majority&appName=danielcluster`)
+mongoose.connect(config.MONGO_DB_URI)
 .then(() =>{
     console.log("Connected to the database");
-    app.listen(PORT, () =>{
-        console.log(`Server is running on port ${PORT}`);
+    app.listen(config.PORT, () =>{
+        console.log(`Server is running on port ${config.PORT}`);
     });
 }).catch((err) =>{
     console.error(`Connection Failed: {err}`)
