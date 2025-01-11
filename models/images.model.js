@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const ImageSchema = new mongoose.Schema(
     {
-        imageUrl:{
+        imageName:{
             type: String,
             required: true
         }
@@ -10,6 +10,6 @@ const ImageSchema = new mongoose.Schema(
 )
 
 
-const Images = mongoose.model("Images", ImageSchema);
+const ImageModel = mongoose.model("Images", ImageSchema);
 
-export default Images
+export default ImageModel
