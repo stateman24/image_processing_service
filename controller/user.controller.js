@@ -1,9 +1,11 @@
 import { User } from "../models/user.model.js";
 
 
-export const register = (req, res) =>{
+export const register = async(req, res) =>{
     try {
-        const user = User.create(req.body);
+        const {name, email, password} = req.body
+        console.log(req.body);
+        const user = await User.create(req.body);
         res.status(201).json(user);
     } catch (error) {
         res.status(500).send({ "message": error.message });

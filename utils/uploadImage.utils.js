@@ -1,15 +1,18 @@
 import AWS from "aws-sdk"
 import config from "../config.js"
 
+const awsConfig = config.AWS
+
 
 const uploadToS3 = async(file, bucketName) =>{
     try {
         const aws_S3 = new AWS.S3({
             credentials: {
-                accessKeyId: config.AWS.accessKeyId,
-                secretAccessKey: config.AWS.secretAccessKey
+                accessKeyId: awsConfig.accessKeyId,
+                secretAccessKey: awsConfig.secretKeyId
             }
         })
+    
         const uploadedFileName = `image_${(Date.now()).toString()}.${file.mimetype.split("/")[1]}`
         const params = {
             Bucket: bucketName,
