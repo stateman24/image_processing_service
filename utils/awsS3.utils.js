@@ -1,6 +1,7 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3"
 import config from "../config.js"
 import ImageModel from "../models/images.model.js"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 const awsConfig = config.AWS
 
@@ -40,21 +41,19 @@ export const uploadToS3 = async(file, bucketName) =>{
 }
 
 
-export const getImageFromS3 = async(fileName,bucketName) =>{
+export const getImageFromS3 = async(fileName, bucketName) =>{
     const params = {
         Bucket: bucketName,
-        Key: uploadedFileName,
+        Key: fileName,
     }
-    const getCommand = new GetObjectCommand(params);
-    return new Promise((resolve, reject)=>{
-        aws_S3.send(putCommand, (err, data)=>{
-            if(err){
-                reject(err)
-            }else{
-                resolve(data)
-            }
-        })
-    })
+    try {
+        const getCommand = new GetObjectCommand(params);
+        const signedUrl =  await getSignedUrl(aws_S3, getCommand, { expiresIn: 3600 });
+        return signedUrl
+    }catch(err){
+        console.error(`${err}`)
+    }
+    
 }
 
 export default uploadToS3

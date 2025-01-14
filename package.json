@@ -21,8 +21,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.726.1",
     "@aws-sdk/s3-request-presigner": "^3.726.1",
+    "axios": "^1.7.9",
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
+    "fs": "^0.0.1-security",
     "mongoose": "^8.9.3",
     "sharp": "^0.33.5"
   },
