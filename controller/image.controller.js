@@ -1,11 +1,11 @@
 import config from "../config.js";
 import axios from "axios"
-import { uploadToS3, getImageFromS3 } from "../utils/awsS3.utils.js";
+import {uploadToS3, getImageFromS3, sendImageToS3} from "../utils/awsS3.utils.js";
 import ImageModel from "../models/images.model.js";
+import imageTransformer from "../utils/image.utils.js";
 
-// TODO: 
 
-// An helper function that uses image Id to return a image url from AWS
+// a helper function that uses image id to return an image url from AWS
 const getImageNameFromId = async(id) =>{
     try {
         // Find the image in the database
@@ -64,14 +64,22 @@ export const getImage = async(req, res) =>{
 export const transformImage = async(req, res) => {
     try {
         const { id } = req.params;
+        const transformationParams = req.body
         const imageName = await getImageNameFromId(id);
         const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
         const imageFileBuffer = await fetchImage(imageUrl);
-        // turn buffer into a image
-        return res.status(200).json({"message": "image downloaded Successfully"})
+        console.log(imageFileBuffer);
+        const transformedImageBuffer = await imageTransformer(imageFileBuffer, transformationParams);
+        console.log(transformedImageBuffer);
+        // upload image back to the cloud
+        const uploadResult = await sendImageToS3(transformedImageBuffer, config.AWS.bucketName, imageName);
+        return res.status(200).json({uploadResult})
     } catch (error) {
         return res.status(500).json({"message": `${error}`})
     }
 }
+
+// TODO: Test the transform image endpoint
+
 
 export default uploadImage
