@@ -1,12 +1,26 @@
 import sharp from "sharp"
 
 
-const getImageMetadata = async(imageBuffer) =>{
+
+export const getImageMetadata = async(imageFile) =>{
+    try{
+        const image = sharp(imageFile)
+        const imageMetadata = await image.metadata();
+        return {
+            format: imageMetadata.format,
+            size: imageMetadata.size,
+            height: imageMetadata.height,
+            width: imageMetadata.width,
+        }
+
+    }catch(err){
+        return Promise.reject(err)
+    }
 
 }
 
 
-const imageTransformer = async (imageBuffer, transformation) => {
+export const imageTransformer = async (imageBuffer, transformation) => {
     const image =  sharp(imageBuffer)
     const transformParamKeys = Object.keys(transformation);
     // loop through all the transformation key

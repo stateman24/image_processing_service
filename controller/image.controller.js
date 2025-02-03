@@ -2,7 +2,8 @@ import config from "../config.js";
 import axios from "axios"
 import {uploadToS3, getImageFromS3, sendImageToS3} from "../utils/awsS3.utils.js";
 import ImageModel from "../models/images.model.js";
-import imageTransformer from "../utils/image.utils.js";
+import {imageTransformer, getImageMetadata} from "../utils/image.utils.js";
+import imagesModel from "../models/images.model.js";
 
 
 // a helper function that uses image id to return an image url from AWS
@@ -31,10 +32,36 @@ const fetchImage = async(url) => {
 
 export const uploadImage = async(req, res) =>{
     try {
-        if(req.files.images.name){
-            const uploadResult = await uploadToS3(req.files.images, config.AWS.bucketName);
-            return res.status(201).json({"body": uploadResult});
+        console.log(req.files)
+        if(req.files.images){
+            // if number of files is more then 1 upload one by one(multiple file upload)
+            if(req.files.images.length > 0){
+                const images = []
+                for(let i in req.files.images){
+                    const metadata =  await getImageMetadata(req.files.images[i].data);
+                    await uploadToS3(req.files.images[i], config.AWS.bucketName);
+                    const url = await getImageFromS3(req.files.images[i].name, config.AWS.bucketName, 18000);
+                    const image = await ImageModel.create({
+                        name: req.files.images[i].name,
+                        metadata: metadata,
+                        url: url
+                    });
+                    images.push(image);
+                }
+                return res.status(201).json(images);
+            }
+            // single file upload
+            const metadata =  await getImageMetadata(req.files.images.data);
+            await uploadToS3(req.files.images, config.AWS.bucketName);
+            const url = await getImageFromS3(req.files.images.name, config.AWS.bucketName, 18000);
+            const image = await ImageModel.create({
+                name: req.files.images.name,
+                metadata: metadata,
+                url: url
+            });
+            return res.status(201).json(image);
         }
+
     } catch (error) {
         return res.status(500).json({
             "message": `${error}`,
@@ -47,7 +74,7 @@ export const getImage = async(req, res) =>{
    try{ 
         const { id } = req.params;
         const imageName = await getImageNameFromId(id);
-        const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
+        const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName, 3600);
         // get Image from the Url
         const imageFileResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' }); // images file response from the url
         const contentType = imageFileResponse.headers["content-type"];

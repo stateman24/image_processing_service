@@ -1,13 +1,5 @@
 import mongoose from 'mongoose';
 
-const MetaDataSchema = new mongoose.Schema(
-    {
-        format: String,
-        size : String,
-        width: String,
-        height: String,
-    }
-)
 
 const ImageSchema = new mongoose.Schema(
     {
@@ -16,7 +8,8 @@ const ImageSchema = new mongoose.Schema(
             required: true
         },
         metadata: {
-            type: MetaDataSchema,
+            type: Map,
+            of: String,
             required: false
         },
         url:{
