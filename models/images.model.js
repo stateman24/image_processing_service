@@ -1,11 +1,29 @@
 import mongoose from 'mongoose';
 
+const MetaDataSchema = new mongoose.Schema(
+    {
+        format: String,
+        size : String,
+        width: String,
+        height: String,
+    }
+)
+
 const ImageSchema = new mongoose.Schema(
     {
-        imageName:{
+        name:{
+            type: String,
+            required: true
+        },
+        metadata: {
+            type: MetaDataSchema,
+            required: false
+        },
+        url:{
             type: String,
             required: true
         }
+
     }
 )
 

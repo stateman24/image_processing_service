@@ -6,6 +6,7 @@ import imageTransformer from "../utils/image.utils.js";
 
 
 // a helper function that uses image id to return an image url from AWS
+// TODO: move to utils
 const getImageNameFromId = async(id) =>{
     try {
         // Find the image in the database
@@ -18,7 +19,7 @@ const getImageNameFromId = async(id) =>{
         console.error(`${error}`)
     }
 }
-
+// TODO: move to image utils
 const fetchImage = async(url) => {
     try {
         const response = await axios.get(url, {responseType: "arraybuffer"})
@@ -64,22 +65,20 @@ export const getImage = async(req, res) =>{
 export const transformImage = async(req, res) => {
     try {
         const { id } = req.params;
-        const transformationParams = req.body
+        const transformationParams = req.body.transformations
         const imageName = await getImageNameFromId(id);
         const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
         const imageFileBuffer = await fetchImage(imageUrl);
-        console.log(imageFileBuffer);
         const transformedImageBuffer = await imageTransformer(imageFileBuffer, transformationParams);
-        console.log(transformedImageBuffer);
         // upload image back to the cloud
-        const uploadResult = await sendImageToS3(transformedImageBuffer, config.AWS.bucketName, imageName);
-        return res.status(200).json({uploadResult})
+        // const uploadResult = await sendImageToS3(transformedImageBuffer, config.AWS.bucketName, imageName);
+        return res.status(200).json({"message": "Image Transformed"})
     } catch (error) {
         return res.status(500).json({"message": `${error}`})
     }
 }
 
-// TODO: Test the transform image endpoint
-
+// TODO: make all controllers to only hand requests and send response
+// TODO: Split the some controller functionalities to the services module e.g transform
 
 export default uploadImage

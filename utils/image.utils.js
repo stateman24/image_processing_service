@@ -1,24 +1,30 @@
 import sharp from "sharp"
 
 
+const getImageMetadata = async(imageBuffer) =>{
+
+}
+
+
 const imageTransformer = async (imageBuffer, transformation) => {
     const image =  sharp(imageBuffer)
-    const transformations = transformation.transformations;
-    const transformParamKeys = Object.keys(transformations);
-    for (let key in transformParamKeys) {
-        switch (key) {
-            case "resize":
-                image.resize(transformations.resize);
-                break;
-            case "crop":
-                image.extract(transformations.crop);
-                break;
-            case "rotate":
-                image.rotate(transformations.rotate);
-                break;
+    const transformParamKeys = Object.keys(transformation);
+    // loop through all the transformation key
+    for(let key of transformParamKeys) {
+        if(key === "crop"){
+            console.log(key)
+            image.extract(transformation.crop);
+        }
+        if(key === "rotate"){
+            console.log(key)
+            image.rotate(transformation.rotate);
+        }
+        if (key === "resize"){
+            console.log(key)
+            image.resize(transformation.resize);
         }
     }
+
     return image.toBuffer();
 }
-// TODO: Image is not transforming
 export default imageTransformer
