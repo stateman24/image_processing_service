@@ -1,5 +1,8 @@
 import sharp from "sharp"
 import axios from "axios";
+import ImageModel from "../models/images.model.js";
+
+
 
 // fectch image from url
 export const fetchImage = async(url) => {
@@ -21,7 +24,7 @@ export const getImageNameFromId = async(id) =>{
         if(!image){
             return null
         }
-        return image.imageName
+        return image.name;
     } catch (error) {
         console.error(`${error}`)
     }
@@ -51,15 +54,15 @@ export const imageTransformer = async (imageBuffer, transformation) => {
     // loop through all the transformation key
     for(let key of transformParamKeys) {
         if(key === "crop"){
-            console.log(key)
+            //console.log(key)
             image.extract(transformation.crop);
         }
         if(key === "rotate"){
-            console.log(key)
+            //console.log(key)
             image.rotate(transformation.rotate);
         }
         if (key === "resize"){
-            console.log(key)
+            //console.log(key)
             image.resize(transformation.resize);
         }
     }

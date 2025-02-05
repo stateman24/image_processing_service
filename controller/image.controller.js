@@ -89,7 +89,7 @@ export const transformImage = async(req, res) => {
         const imageFileBuffer = await fetchImage(imageUrl);
         const transformedImageBuffer = await imageTransformer(imageFileBuffer, transformationParams);
         // upload image back to the cloud
-        // const uploadResult = await sendImageToS3(transformedImageBuffer, config.AWS.bucketName, imageName);
+        const uploadResult = await sendImageToS3(transformedImageBuffer, config.AWS.bucketName, imageName);
         return res.status(200).json({"message": "Image Transformed"})
     } catch (error) {
         return res.status(500).json({"message": `${error}`})
