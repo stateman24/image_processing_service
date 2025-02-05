@@ -1,5 +1,5 @@
 import sharp from "sharp"
-
+import axios from "axios";
 
 // fectch image from url
 export const fetchImage = async(url) => {

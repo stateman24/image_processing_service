@@ -5,9 +5,10 @@ import ImageModel from "../models/images.model.js";
 import { imageTransformer, getImageMetadata, getImageNameFromId, fetchImage } from "../utils/image.utils.js";
 
 
+
 export const uploadImage = async(req, res) =>{
     try {
-       console.log(req.files)
+        console.log(req.files)
         if(req.files.images){
             // if number of files is more then 1 upload one by one(multiple file upload)
             if(req.files.images.length > 0){
@@ -44,6 +45,20 @@ export const uploadImage = async(req, res) =>{
     }
 };
 
+export const getImage = (req, res) => {
+  try {
+      const {id} = req.parmas;
+      const image = ImageModel.findById(id);
+      if (!image){
+        return res.status(404).json({"message": "Image not found"})
+      }
+      return res.status(200).json(image);
+
+  } catch (error){
+      return res.status(500).json(error)
+
+  }
+}
 
 export const downloadImage = async(req, res) =>{
    try{ 
@@ -63,6 +78,7 @@ export const downloadImage = async(req, res) =>{
         return res.status(500).json({"message": `${err}`})
     }
 }
+
 
 export const transformImage = async(req, res) => {
     try {
