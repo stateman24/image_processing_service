@@ -1,6 +1,31 @@
 import sharp from "sharp"
 
 
+// fectch image from url
+export const fetchImage = async(url) => {
+    try {
+        const response = await axios.get(url, {responseType: "arraybuffer"})
+        return response.data;
+    } catch (error) {
+        console.error(`${error}`)
+    }
+}
+
+
+
+
+export const getImageNameFromId = async(id) =>{
+    try {
+        // Find the image in the database
+        const image = await ImageModel.findById(id)
+        if(!image){
+            return null
+        }
+        return image.imageName
+    } catch (error) {
+        console.error(`${error}`)
+    }
+}
 
 export const getImageMetadata = async(imageFile) =>{
     try{

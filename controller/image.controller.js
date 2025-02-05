@@ -2,37 +2,12 @@ import config from "../config.js";
 import axios from "axios"
 import {uploadToS3, getImageFromS3, sendImageToS3} from "../utils/awsS3.utils.js";
 import ImageModel from "../models/images.model.js";
-import {imageTransformer, getImageMetadata} from "../utils/image.utils.js";
-import imagesModel from "../models/images.model.js";
+import { imageTransformer, getImageMetadata, getImageNameFromId, fetchImage } from "../utils/image.utils.js";
 
-
-// a helper function that uses image id to return an image url from AWS
-// TODO: move to utils
-const getImageNameFromId = async(id) =>{
-    try {
-        // Find the image in the database
-        const image = await ImageModel.findById(id)
-        if(!image){
-            return null
-        }
-        return image.imageName
-    } catch (error) {
-        console.error(`${error}`)
-    }
-}
-// TODO: move to image utils
-const fetchImage = async(url) => {
-    try {
-        const response = await axios.get(url, {responseType: "arraybuffer"})
-        return response.data;
-    } catch (error) {
-        console.error(`${error}`)
-    }
-}
 
 export const uploadImage = async(req, res) =>{
     try {
-        console.log(req.files)
+       console.log(req.files)
         if(req.files.images){
             // if number of files is more then 1 upload one by one(multiple file upload)
             if(req.files.images.length > 0){
@@ -70,7 +45,7 @@ export const uploadImage = async(req, res) =>{
 };
 
 
-export const getImage = async(req, res) =>{
+export const downloadImage = async(req, res) =>{
    try{ 
         const { id } = req.params;
         const imageName = await getImageNameFromId(id);
