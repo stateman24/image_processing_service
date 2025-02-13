@@ -2,8 +2,7 @@ import config from "../config.js";
 import axios from "axios"
 import {uploadToS3, getImageFromS3, sendImageToS3} from "../utils/awsS3.utils.js";
 import ImageModel from "../models/images.model.js";
-import { imageTransformer, getImageMetadata, getImageNameFromId, fetchImage } from "../utils/image.utils.js";
-
+import { imageTransformer, getImageMetadata, getImageNameFromId, fetchImage } from "../utils/image.utils.js"
 
 
 export const uploadImage = async(req, res) =>{
@@ -45,17 +44,30 @@ export const uploadImage = async(req, res) =>{
     }
 };
 
-export const getImage = (req, res) => {
+
+export const getImages = async(req, res) => {
   try {
-      const {id} = req.parmas;
-      const image = ImageModel.findById(id);
+    const images = await ImageModel.find({});
+    if(!images){  
+      return res.status(404).json({"message": "No Image Entries"});
+    }
+    return res.status(200).json(images);
+  } catch (error) {
+    return res.status(500).json(error)
+  }
+}
+
+export const getImage = async(req, res) => {
+  try {
+      const { id } = req.params;
+      const image = await ImageModel.findById(id);
       if (!image){
         return res.status(404).json({"message": "Image not found"})
       }
       return res.status(200).json(image);
 
   } catch (error){
-      return res.status(500).json(error)
+      return res.status(500).json({"message": `${error}`})
 
   }
 }
