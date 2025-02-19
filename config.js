@@ -8,7 +8,7 @@ const config = {
     awsConfigFile: process.env.AWS_SDK_LOAD_CONFIG,
   },
   MONGO_DB_URI: `mongodb+srv://ajibewadannyboi:${process.env.DB_PASSWORD}@danielcluster.fd5sg.mongodb.net/ip_servicedb?retryWrites=true&w=majority&appName=danielcluster`,
-  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET_TOKEN,
 };
 
 export default config;

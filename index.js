@@ -7,6 +7,7 @@ import fileUpload from "express-fileupload";
 import helmet from "helmet";
 import morgan from "morgan";
 import { auth_router } from "./routes/auth.routes.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
