@@ -21,8 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(morgan("combined"));
-app.use(errorMiddleware)
-
+//app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
   try {
