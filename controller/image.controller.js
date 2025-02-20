@@ -17,16 +17,15 @@ import { StatusCodes } from "http-status-codes";
 
 export const uploadImage = async (req, res, next) => {
   try {
-    res.status(StatusCodes.OK).json({ data: req.files });
-    //if (req.files.images) {
-    //  const imagesFilesToUpload = req.files.images;
-    //  const image = uploadImageService(imagesFilesToUpload, req.user._id);
-    //  res
-    //    .status(StatusCodes.CREATED)
-    //    .json({ data: image, message: "Image(s) uploaded succefully" });
-    //} else {
-    //  res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: req });
-    //}
+    if (req.files.images) {
+      const imagesFilesToUpload = req.files.images;
+      const image = await uploadImageService(imagesFilesToUpload, req.user._id);
+      res
+        .status(StatusCodes.CREATED)
+        .json({ data: image, message: "Image(s) uploaded succefully" });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ data: req });
+    }
   } catch (error) {
     next(error);
   }
