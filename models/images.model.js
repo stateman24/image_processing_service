@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { SchemaTypes } from "mongoose";
 
 const ImageSchema = new mongoose.Schema({
   name: {
@@ -14,6 +14,14 @@ const ImageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  user: {
+    type: SchemaTypes.ObjectId,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now()
+  }
 });
 
 const ImageModel = mongoose.model("Images", ImageSchema);
