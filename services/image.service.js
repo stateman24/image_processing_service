@@ -83,3 +83,46 @@ export const getImageService = async (imageId) => {
     }
     return image
 };
+
+// download an image from S3 bucket 
+export const downloadImageService = async (imageId) => {
+    const imageName = await getImageNameFromId(imageId);
+    const imageUrl = await getImageFromS3(
+        imageName,
+        config.AWS.bucketName,
+        3600
+    );
+    // get Image using the Url
+    const imageFileResponse = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
+    }); // images file response from the url
+    const contentType = imageFileResponse.headers["content-type"];
+    const fileName = imageName; // get Image file name from DB
+    return {
+        "fileResponse": imageFileResponse,
+        'filename': imageName
+    }
+};
+
+export const transformImageService = async (transformationParams, imageId) => {
+    const imageName = await getImageNameFromId(imageId);
+    const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
+    const imageFileBuffer = await fetchImage(imageUrl);
+    const transformedImageBuffer = await imageTransformer(
+        imageFileBuffer,
+        transformationParams,
+        imageId
+    );
+    if(!transformedImageBuffer){
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Image not Transfomed")
+    }
+    // upload image back to the cloud
+    const uploadResult = await sendImageToS3(
+        transformedImageBuffer,
+        config.AWS.bucketName,
+        imageName
+    );
+    if (!uploadResult) {
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Something Went Wrong")
+    }
+};

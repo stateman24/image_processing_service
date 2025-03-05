@@ -1,19 +1,6 @@
-import config from "../config.js";
-import axios from "axios";
-import {
-    uploadToS3,
-    getImageFromS3,
-    sendImageToS3,
-} from "../utils/awsS3.utils.js";
-import ImageModel from "../models/images.model.js";
-import {
-    imageTransformer,
-    getImageMetadata,
-    getImageNameFromId,
-    fetchImage,
-} from "../utils/image.utils.js";
-import { getImageService, getImagesService, uploadImageService } from "../services/image.service.js";
+import { downloadImageService, getImageService, getImagesService, transformImageService, uploadImageService } from "../services/image.service.js";
 import { StatusCodes } from "http-status-codes";
+
 
 // upload image controller
 export const uploadImage = async (req, res, next) => {
@@ -59,59 +46,33 @@ export const getImage = async (req, res, next) => {
 };
 
 // downloadImage an Image form the cloud
-// TODO: Refactor to Image Service
-export const downloadImage = async (req, res) => {
+export const downloadImage = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const imageName = await getImageNameFromId(id);
-        const imageUrl = await getImageFromS3(
-            imageName,
-            config.AWS.bucketName,
-            3600
-        );
-        // get Image from the Url
-        const imageFileResponse = await axios.get(imageUrl, {
-            responseType: "arraybuffer",
-        }); // images file response from the url
-        const contentType = imageFileResponse.headers["content-type"];
-        const fileName = imageName; // get Image file name from DB
-        // set the response headers
-        res.setHeader("Content-Type", contentType);
+        const { imageId } = req.params;
+        const { fileResponse, filename } = await downloadImageService(imageId);
+        res.setHeader("Content-Type", fileResponse.headers["content-type"]);
         res.setHeader(
             "Content-Disposition",
-            `attachment; filename="${fileName}"`
+            `attachment; filename="${filename}"`
         );
         // send image binary data as a response
         return res
             .status(200)
-            .send(Buffer.from(imageFileResponse.data, "binary"));
-    } catch (err) {
-        return res.status(500).json({ message: `${err}` });
+            .send(Buffer.from(fileResponse.data, "binary"));
+    } catch (error) {
+        next(error)
     }
 };
 
 // Transform Image based on transformation parameters
-// TODO: Refactor to Image Service
-export const transformImage = async (req, res) => {
+export const transformImage = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { imageId } = req.params;
         const transformationParams = req.body.transformations;
-        const imageName = await getImageNameFromId(id);
-        const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
-        const imageFileBuffer = await fetchImage(imageUrl);
-        const transformedImageBuffer = await imageTransformer(
-            imageFileBuffer,
-            transformationParams
-        );
-        // upload image back to the cloud
-        const uploadResult = await sendImageToS3(
-            transformedImageBuffer,
-            config.AWS.bucketName,
-            imageName
-        );
-        return res.status(200).json({ message: "Image Transformed" });
+        const transformation = await transformImageService(transformationParams, imageId);
+        return res.status(StatusCodes.OK).json({ message: "Image Transformed" });
     } catch (error) {
-        return res.status(500).json({ message: `${error}` });
+        next(error)
     }
 };
 
