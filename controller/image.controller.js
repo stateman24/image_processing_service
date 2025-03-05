@@ -12,7 +12,7 @@ import {
     getImageNameFromId,
     fetchImage,
 } from "../utils/image.utils.js";
-import { uploadImageService } from "../services/image.service.js";
+import { getImageService, getImagesService, uploadImageService } from "../services/image.service.js";
 import { StatusCodes } from "http-status-codes";
 
 // upload image controller
@@ -36,32 +36,26 @@ export const uploadImage = async (req, res, next) => {
     }
 };
 
-// get Images controller
-// TODO: Refactor to Image Services
+// getImages Controller
 export const getImages = async (req, res, next) => {
     try {
-        const images = await ImageModel.find({});
-        if (!images) {
-            return res.status(404).json({ message: "No Image Entries" });
-        }
-        return res.status(200).json(images);
+        const user = req.user; // get the authenticated user
+        const images = await getImagesService(user._id);
+        res.status(StatusCodes.OK).json({ data: images });
     } catch (error) {
-        return res.status(500).json(error);
+        next(error)
     }
 };
 
 // get a single image by Id
 // TODO: Refactore to Image Services
-export const getImage = async (req, res) => {
+export const getImage = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const image = await ImageModel.findById(id);
-        if (!image) {
-            return res.status(404).json({ message: "Image not found" });
-        }
-        return res.status(200).json(image);
+        const { imageId } = req.params;
+        const image = await getImageService(imageId);
+        res.status(StatusCodes.OK).json({ data: image });
     } catch (error) {
-        return res.status(500).json({ message: `${error}` });
+        next(error)
     }
 };
 

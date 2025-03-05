@@ -61,3 +61,25 @@ export const uploadImageService = async (imageFile, userId) => {
     }
 };
 
+// get All User Images Services
+export const getImagesService = async (userId) => {
+    console.log(userId);
+    const images = await ImageModel.find({ user: userId });
+    if (!images) {
+        throw createHttpError(StatusCodes.NOT_ACCEPTABLE, "Images not found");
+    }
+    return images;
+};
+
+
+// get a single image metadata Service
+export const getImageService = async (imageId) => {
+    if (!imageId) {
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Provide IMAGEID")
+    }
+    const image = await ImageModel.findById(id)
+    if (!image) {
+        throw createHttpError(StatusCodes.NOT_FOUND, "Image MetaData not found")
+    }
+    return image
+};

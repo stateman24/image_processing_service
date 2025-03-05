@@ -7,8 +7,8 @@ const image_router = express.Router();
 image_router.post("/", [authmiddleware], uploadImage);
 image_router.get("/:id/download", downloadImage);
 image_router.post("/:id/transform", transformImage);
-image_router.get("/:id", getImage);
-image_router.get("/", getImages)
+image_router.get("/:imageId", [authmiddleware],  getImage);
+image_router.get("/", [authmiddleware], getImages)
 
 export default image_router;
 
