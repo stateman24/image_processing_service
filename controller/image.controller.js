@@ -48,7 +48,6 @@ export const getImages = async (req, res, next) => {
 };
 
 // get a single image by Id
-// TODO: Refactore to Image Services
 export const getImage = async (req, res, next) => {
     try {
         const { imageId } = req.params;
