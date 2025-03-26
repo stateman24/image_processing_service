@@ -2,7 +2,7 @@ import sharp from "sharp"
 import axios from "axios";
 import ImageModel from "../models/images.model.js";
 import createHttpError from "http-errors";
-
+import { StatusCodes } from "http-status-codes";
 
 
 // fectch image from url

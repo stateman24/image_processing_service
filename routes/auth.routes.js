@@ -5,3 +5,4 @@ export const auth_router = Router();
 
 auth_router.post("/register", signUp);
 auth_router.post("/login", loginIn);
+// auth_router.get("/elastic-cache", elasticCacheTesting);

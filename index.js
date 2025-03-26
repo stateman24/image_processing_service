@@ -8,6 +8,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { auth_router } from "./routes/auth.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { connectToRedis } from "./utils/elasticCache.utils.js";
 
 const app = express();
 
@@ -40,6 +41,7 @@ mongoose
   .connect(config.MONGO_DB_URI)
   .then(() => {
     console.log("Connected to the database");
+    connectToRedis();
     app.listen(config.PORT, () => {
       console.log(`Server is running on port ${config.PORT}`);
     });

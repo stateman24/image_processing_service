@@ -92,6 +92,7 @@ export const downloadImageService = async (imageId) => {
         config.AWS.bucketName,
         3600
     );
+    console.log(imageUrl)
     // get Image using the Url
     const imageFileResponse = await axios.get(imageUrl, {
         responseType: "arraybuffer",
@@ -100,7 +101,7 @@ export const downloadImageService = async (imageId) => {
     const fileName = imageName; // get Image file name from DB
     return {
         "fileResponse": imageFileResponse,
-        'filename': imageName
+        'filename': fileName
     }
 };
 
