@@ -14,6 +14,7 @@ import {
 } from "../utils/image.utils.js";
 import createHttpError from "http-errors";
 import { StatusCodes } from "http-status-codes";
+import { redisClient } from "../utils/redisUtils.js";
 
 export const uploadImageService = async (imageFile, userId) => {
     if (imageFile) {
@@ -63,7 +64,6 @@ export const uploadImageService = async (imageFile, userId) => {
 
 // get All User Images Services
 export const getImagesService = async (userId) => {
-    console.log(userId);
     const images = await ImageModel.find({ user: userId });
     if (!images) {
         throw createHttpError(StatusCodes.NOT_ACCEPTABLE, "Images not found");
@@ -71,20 +71,28 @@ export const getImagesService = async (userId) => {
     return images;
 };
 
-
 // get a single image metadata Service
 export const getImageService = async (imageId) => {
     if (!imageId) {
-        throw createHttpError(StatusCodes.BAD_REQUEST, "Provide IMAGEID")
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Provide IMAGEID");
     }
-    const image = await ImageModel.findById(id)
+    // get image form  cache
+    const cacheImage = await redisClient.get(imageId);
+    if (cacheImage) {
+        return JSON.parse(cacheImage);
+    }
+    const image = await ImageModel.findById(imageId);
     if (!image) {
-        throw createHttpError(StatusCodes.NOT_FOUND, "Image MetaData not found")
+        throw createHttpError(
+            StatusCodes.NOT_FOUND,
+            "Image MetaData not found"
+        );
     }
-    return image
+    await redisClient.set(imageId, JSON.stringify(image), "EX", 3600)
+    return image;
 };
 
-// download an image from S3 bucket 
+// download an image from S3 bucket
 export const downloadImageService = async (imageId) => {
     const imageName = await getImageNameFromId(imageId);
     const imageUrl = await getImageFromS3(
@@ -92,7 +100,6 @@ export const downloadImageService = async (imageId) => {
         config.AWS.bucketName,
         3600
     );
-    console.log(imageUrl)
     // get Image using the Url
     const imageFileResponse = await axios.get(imageUrl, {
         responseType: "arraybuffer",
@@ -100,12 +107,19 @@ export const downloadImageService = async (imageId) => {
     const contentType = imageFileResponse.headers["content-type"];
     const fileName = imageName; // get Image file name from DB
     return {
-        "fileResponse": imageFileResponse,
-        'filename': fileName
-    }
+        fileResponse: imageFileResponse,
+        filename: fileName,
+    };
 };
 
 export const transformImageService = async (transformationParams, imageId) => {
+    // get transfprmed image from cache
+    const cacheImageTransformed = await redisClient.get(imageId);
+    if (cacheImageTransformed) {
+        return JSON.parse(cacheImageTransformed);
+    }
+
+    // cache miss
     const imageName = await getImageNameFromId(imageId);
     const imageUrl = await getImageFromS3(imageName, config.AWS.bucketName);
     const imageFileBuffer = await fetchImage(imageUrl);
@@ -114,8 +128,8 @@ export const transformImageService = async (transformationParams, imageId) => {
         transformationParams,
         imageId
     );
-    if(!transformedImageBuffer){
-        throw createHttpError(StatusCodes.BAD_REQUEST, "Image not Transfomed")
+    if (!transformedImageBuffer) {
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Image not Transfomed");
     }
     // upload image back to the cloud
     const uploadResult = await sendImageToS3(
@@ -124,6 +138,8 @@ export const transformImageService = async (transformationParams, imageId) => {
         imageName
     );
     if (!uploadResult) {
-        throw createHttpError(StatusCodes.BAD_REQUEST, "Something Went Wrong")
+        throw createHttpError(StatusCodes.BAD_REQUEST, "Something Went Wrong");
     }
+    await redisClient.set(imageId, JSON.stringify(uploadResult), "EX", 3600)
+    return uploadResult
 };

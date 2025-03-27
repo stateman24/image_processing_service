@@ -14,7 +14,6 @@ export const signUp = async (req, res, next) => {
 
 export const loginIn = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { user, token } = await loginService(req.body);
     res
       .status(StatusCodes.OK)

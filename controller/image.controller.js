@@ -76,15 +76,5 @@ export const transformImage = async (req, res, next) => {
     }
 };
 
-// export const elasticCacheTesting = async(req, res, next) => {
-//     try {
-//       const awsCacheClient = client;
-//       await awsCacheClient.set("foo", "bar");
-//       const value = await client.get("foo");
-//       res.status(StatusCodes.OK).json({data: value, message: "Elastic Cache Redis Value"})
-//     } catch (error) {
-//        next(error) 
-//     }
-// }
 
 export default uploadImage;
