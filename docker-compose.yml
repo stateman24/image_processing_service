@@ -1,8 +1,18 @@
-version: '3.8'
 services:
   redis:
     image: redis:latest
     container_name: local_redis
     ports:
       - "6379:6379"
-    restart: always
+    restart: always  
+   
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin

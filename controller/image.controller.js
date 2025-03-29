@@ -1,5 +1,6 @@
 import { downloadImageService, getImageService, getImagesService, transformImageService, uploadImageService } from "../services/image.service.js";
 import { StatusCodes } from "http-status-codes";
+import { startProducer } from "../utils/rabbitmq.utils.js";
 
 
 // upload image controller
@@ -69,7 +70,7 @@ export const transformImage = async (req, res, next) => {
     try {
         const { imageId } = req.params;
         const transformationParams = req.body.transformations;
-        const transformation = await transformImageService(transformationParams, imageId);
+        await startProducer(transformationParams, imageId);
         return res.status(StatusCodes.OK).json({ message: "Image Transformed" });
     } catch (error) {
         next(error)
