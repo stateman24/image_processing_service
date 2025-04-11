@@ -1,7 +1,7 @@
 import { downloadImageService, getImageService, getImagesService, transformImageService, uploadImageService } from "../services/image.service.js";
 import { StatusCodes } from "http-status-codes";
 import { startProducer } from "../utils/rabbitmq.utils.js";
-
+import { enhanceImage } from "../utils/image.utils.js"
 
 // upload image controller
 export const uploadImage = async (req, res, next) => {
@@ -72,6 +72,14 @@ export const transformImage = async (req, res, next) => {
         const transformationParams = req.body.transformations;
         await startProducer(transformationParams, imageId);
         return res.status(StatusCodes.OK).json({ message: "Image Transformed" });
+    } catch (error) {
+        next(error)
+    }
+};
+
+export const enhanceImageController = async (req, res, next) => {
+    try {
+        await enhanceImage();
     } catch (error) {
         next(error)
     }
